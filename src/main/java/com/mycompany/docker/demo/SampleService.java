@@ -120,4 +120,8 @@ public class SampleService {
         }
     }
 
+    void dummyMethodToDemonstrateUpdate() {
+        // do nothing here..
+    }
+
 }

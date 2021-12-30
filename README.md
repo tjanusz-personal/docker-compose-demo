@@ -266,10 +266,18 @@ docker push 111111111.dkr.ecr.us-east-1.amazonaws.com/docker-compose-demo-tomcat
 docker tag docker-compose-demo-tomcat:latest 111111111.dkr.ecr.us-east-1.amazonaws.com/docker-compose-demo-tomcat:version2
 ```
 
+## AWS Inspector findings
+W/in my AWS account I have enabled AWS inspector to automatically scan all ECR based images push to my ECR repos.
+
+On push of container image it should start an auto scan.. But doesn't seem to be working!
+
+```
+# see finding for specific image tag..
+aws ecr describe-image-scan-findings --repository-name docker-compose-demo-tomcat --image-id imageDigest=sha256:f864261b66922fc6aa9fe0c1bd285b14e38069657750647b3a5ac8be85d68af8
+
+```
 
 ## TODO Items
-* Logging integration into PM standard logging components and catalina/AWS system logs
-* Itegration in PM security authorization/authentication
 * AWS X-RAY integration through to fargate
 * Https security
 
