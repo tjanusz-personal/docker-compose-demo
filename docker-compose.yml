@@ -1,0 +1,27 @@
+---
+version: "3.9"
+services:
+  tomcat_demo:
+    image: demo-tomcat:latest
+    deploy:
+      replicas: 1
+    environment:
+      - docker_test
+      - AWS_XRAY_SDK_ENABLED
+      - SPRING_PROFILES_ACTIVE
+      - SECRET_FROM_SECRETS_MGR
+      - PUBLIC_API_URL_BASE
+      - SPRING_DATA_CASSANDRA_PRESENT
+      - CASSANDRA_PCS
+      - ECS_API_URL_BASE
+    ports:
+      - 8080:8080
+    volumes:
+      - sharedData:/home/app/data
+      - sharedData:/home/app/data2
+      - sharedData2:/home/app/sharedData2
+volumes:
+  sharedData:
+    name: docker-compose-demo_sharedData
+  sharedData2:
+    name: docker-compose-demo_sharedData2

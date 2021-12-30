@@ -1,0 +1,11 @@
+---
+version: "3.9"
+services:
+  studio:
+    image: datastax/dse-studio:latest
+    ports:
+      - 127.0.0.1:9091:9091
+    container_name: my-dse-studio
+    environment:
+      - DS_LICENSE=accept
+      - memory=1g

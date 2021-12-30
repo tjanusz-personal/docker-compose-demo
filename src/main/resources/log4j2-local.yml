@@ -1,0 +1,22 @@
+# Added this 'local' logging configuration because it's hard to use JSON locally when debugging things
+Configuration:
+  status: info
+  
+  appenders:
+    Console:
+      name: LogToConsole
+      Target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+
+  Loggers:
+    logger:
+      - name: com.mycompany
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+    Root:
+      level: error
+      AppenderRef:
+        ref: LogToConsole

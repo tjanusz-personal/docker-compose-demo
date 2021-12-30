@@ -1,0 +1,22 @@
+Configuration:
+  status: info
+
+  appenders:
+    Console:
+      name: LogToConsole
+      JSONLayout:
+        complete: false
+        compact: true
+        eventEol: true
+
+  Loggers:
+    logger:
+      - name: com.mycompany
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+    Root:
+      level: error
+      AppenderRef:
+        ref: LogToConsole

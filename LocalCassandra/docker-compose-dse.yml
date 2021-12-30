@@ -1,0 +1,13 @@
+---
+version: "3.9"
+services:
+  dse:
+    # image: datastax/dse-server:latest
+    image: datastax/dse-server:5.1.16
+    command: [ -s -Dcassandra.commitlog.ignorereplayerrors=true ]
+    ports:
+      - 127.0.0.1:9042:9042
+    container_name: my-dse
+    environment:
+      - DS_LICENSE=accept
+      - DC=Search
