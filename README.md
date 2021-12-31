@@ -8,7 +8,7 @@ This project attempts to demonstrate:
 * Proper environment configuration for container deployment via docker environment variables
 * How to package/deploy container using AWS ECS fargate.
 * How to deploy to AWS ECR repository via CLI
-* Deploy image to ECR to validate AWS ECR security scanning via AWS inspector
+* Deploy image to ECR to validate AWS ECR security scanning via AWS inspector. **This project includes an older version of Log4j2 to show the CVE hit by AWS.**
 
 Project assumptions:
 * Deployment to AWS ECS (e.g. not Kubernetes based)
@@ -21,6 +21,8 @@ Required tools to build/run:
 * Maven - [Install Maven](https://maven.apache.org/install.html)
 * Docker - [Install Docker Desktop application](https://www.docker.com/)
 * AWS CLI - [Install AWS CLI](https://aws.amazon.com/cli/)
+* jq - [Install jq](https://stedolan.github.io/jq/manual/#Advancedfeatures)
+
 
 ## Project Structure
 
@@ -238,15 +240,27 @@ AWS_XRAY_SDK_ENABLED=true docker-compose up
 ## Docker packaging/tagging
 This section outlines some commands for building/tagging the docker images and pushing to ECR repository
 
+[AWS ECR repository cli commands](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecr/index.html)
+
 ```
 # create the AWS ECR repository (only need to do this one time)
 aws ecr create-repository --repository-name docker-compose-demo-tomcat --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE
 ## returns an ARN like this..
 arn:aws:ecr:us-east-1:111111111:repository/docker-compose-demo-tomcat
-
 ## the returned ARN prefix can be used for tagging/ecr pushes (see below)
+
+## List out all current repos
+aws ecr describe-repositories
+
+# list images in repo
+aws ecr list-images --repository-name docker-compose-demo-tomcat
+
+# describe all images w/in a repo
+aws ecr describe-images --repository-name docker-compose-demo-tomcat
+
 ```
 
+[Use docker commands to build/tag the image before pushing to AWS ECR repo](https://docs.docker.com/engine/reference/commandline/cli/)
 
 ```
 # Build the docker image (dockerize the WAR file) 
@@ -280,6 +294,30 @@ For example, if I tried to just use a simple 'tomcat:9' container AWS scan resul
 aws ecr describe-image-scan-findings --repository-name docker-compose-demo-tomcat --image-id imageDigest=sha256:get_sha_from_image
 ```
 
+These are some various [aws cli commands to interact with inspector2](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/inspector2/index.html)
+
+```
+# show all covered resouce ids
+aws inspector2 list-coverage | jq '.coveredResources[].resourceId'
+
+# select out a subset of findings into csv format
+aws inspector2 list-findings | jq '.findings[] | [.awsAccountId, .inspectorScore, .severity, .type, .title] | @csv'
+
+# pull out all resources with id and type
+aws inspector2 list-findings | jq '.findings[].resources[] | [.id, .type] | @csv'
+
+# pull out key elements to see list of main issues
+aws inspector2 list-findings | jq '.findings[] | {accountId:.awsAccountId, type:.type, severity:.severity, title:.title, score:.inspectorScore, res_type:.resources[].type, res_id:.resources[].id }'
+
+# alpha sort findings by severity
+aws inspector2 list-findings | jq '.findings | sort_by(.severity)[] | {accountId:.awsAccountId, type:.type, severity:.severity, title:.title, score:.inspectorScore, res_type:.resources[].type, res_id:.resources[].id }'
+
+# alpha sort findings by severity and return as csv file
+aws inspector2 list-findings | jq '.findings | sort_by(.severity)[] | [.awsAccountId, .type, .severity, .title, .inspectorScore, .resources[].type, .resources[].id ]  | @csv'
+
+```
+
+Refer to the security_documentation README.MD for more infomation.
 
 
 ## TODO Items
