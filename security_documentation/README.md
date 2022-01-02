@@ -19,11 +19,18 @@ General Notes in inspector2
 
 ECR Scanning types:
 * BASIC: on upload or ondemand 1x a day, last results only,
-* ENHANCED: on upload, continuous w/CVE DB updated, sends results to security hub, scans for both OS and package level
+* ENHANCED: on upload, continuous w/CVE DB updated, sends results to security hub, scans for both OS and package level. Appears to be using SYNK since I see errors reported as SYNK ids
  
 Integrates into security hub
 * shows all findings from inspector into console
 * uses the ASFF (AWS security hub findings format)
+
+Suppressions
+* can create rules to suppress findings only (no other actions)
+* rule seems global to everything not for a certain 'type'
+* basic filter criteria only (no add/or) 
+* Need to be very specific for certain errors (e.g. IN1-JAVA-ORGGLASSFISH-1297098)
+
 
 Event Bridge Events
 * scan complete w/findings
@@ -69,6 +76,12 @@ aws inspector2 list-findings | jq '.findings | sort_by(.severity)[] | {accountId
 
 # alpha sort findings by severity and return as csv file
 aws inspector2 list-findings | jq '.findings | sort_by(.severity)[] | [.awsAccountId, .type, .severity, .title, .inspectorScore, .resources[].type, .resources[].id ]  | @csv'
+
+# see current filters used (show name and action performed)
+aws inspector2 list-filters | jq '.filters[] | [.name, .action]'
+
+## find specific filter details
+aws inspector2 list-filters --arns arn:aws:inspector2:us-east-1:XXXXXXXXX:owner/XXXXXXXX/filter/bd0099b99081f5ae
 
 ```
 
